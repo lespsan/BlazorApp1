@@ -1,0 +1,37 @@
+﻿@page "/account/manage/email"
+@using Areas.Identity.Data
+@using Data
+@layout EmptyLayout
+@inject CRUD crud
+
+<style>
+    .color {
+        background-color: #e3f2fd;
+    }
+
+    .boton {
+        color: white;
+        border-radius: 5px;
+        background-color: #009ee0;
+        text-align: left;
+    }
+</style>
+
+
+
+
+<MudPaper Width="45%" Class="d-flex flex-column ms-5 color gap-3" Elevation="0">
+    <MudText Typo="Typo.h5"><b>Manage Email</b></MudText>
+    <MudTextField @bind-Value="email" Label="Email" Variant="Variant.Filled" FullWidth="false"></MudTextField>
+    <MudButton Class="bton" FullWidth="true">Save</MudButton>
+</MudPaper>
+
+
+@code {
+    string email = "";
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await crud.ReloadAndGetCurrentUser();
+        nombre = user.Email;
+    }
+}

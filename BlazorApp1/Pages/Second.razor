@@ -1,0 +1,89 @@
+﻿@page "/second"
+
+<PageTitle>Second page</PageTitle>
+
+<MudAvatar Color="Color.Dark">B</MudAvatar>
+<MudAvatar Color="Color.Dark">L</MudAvatar>
+<MudAvatar Color="Color.Dark">A</MudAvatar>
+<MudAvatar Color="Color.Dark">Z</MudAvatar>
+<MudAvatar Color="Color.Dark">O</MudAvatar>
+<MudAvatar Color="Color.Dark">R</MudAvatar>
+<br />
+<br />
+
+<MudAlert Severity="@severity">@message</MudAlert>
+<br />
+
+<MudBadge Content="@counter" Color="Color.Primary" Overlap="true">
+	<MudButton Class="ma-2" Variant="Variant.Filled" Color="Color.Dark" OnClick="Click">Click</MudButton>
+</MudBadge>
+
+<br />
+<br />
+<MudCard>
+	<MudCardContent>
+		<MudText>Blazor</MudText>
+		<MudText Typo="Typo.body2">Blazor es un marco web front-end moderno basado en HTML, CSS y C# que le ayuda a crear aplicaciones web más rápido.</MudText>
+		<MudText Typo="Typo.body2">@text</MudText>
+
+	</MudCardContent>
+	<MudCardActions>
+		<MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="LearnMore">@buttonText</MudButton>
+	</MudCardActions>
+</MudCard>
+
+<br />
+<br />
+<MudChart ChartType="ChartType.Donut" Width="300px" Height="300px" InputData="@data" InputLabels="@labels">
+	<CustomGraphics>
+		<text class="donut-inner-text" x="47%" y="35%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="2">Total</text>
+		<text class="donut-inner-text" x="47%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="5">@data.Sum().ToString()</text>
+	</CustomGraphics>
+</MudChart>
+
+<br />
+<br />
+
+
+@code{
+	private Severity severity = Severity.Error;
+	private String message = "Error";
+	private int counter = 0;
+	private int learnCounter = 0;
+	private String text = "";
+	public double[] data = { 0, 0 };
+	private String buttonText = "Learn More";
+	private string[] labels = { "Error and Solved Clicks", "Learn More and Less Clicks" };
+
+	private async Task Click()
+	{
+		counter++;
+		if (message == "Error")
+		{
+			message = "Solved";
+			severity = Severity.Success;
+		}
+		else
+		{
+			message = "Error";
+			severity = Severity.Error;
+		}
+		data[0] = counter;
+	}
+
+	private async Task LearnMore()
+	{
+		learnCounter++;
+		if (text == "")
+		{
+			buttonText = "Learn Less";
+			text = "Con Blazor, compile aplicaciones web con componentes reutilizables que se pueden ejecutar tanto desde el cliente como desde el servidor para que pueda ofrecer excelentes experiencias web.";
+		}
+		else
+		{
+			buttonText = "Learn More";
+			text = "";
+		}
+		data[1] = learnCounter;
+	}
+}

@@ -1,0 +1,47 @@
+﻿@using BlazorApp1.Data
+@using BlazorApp1.Pages
+@inherits LayoutComponentBase
+@inject NavigationManager NavManager
+
+<PageTitle>BlazorApp1</PageTitle>
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+            <MudSpacer></MudSpacer>
+        <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" Edge="Edge.End" OnClick="@((e) => OpenRegister())" />
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
+        <NavMenu />
+    </MudDrawer>
+   
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+
+@code {
+    bool _drawerOpen = true;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    void OpenRegister()
+    {
+        if(User.name == "")
+        {
+            NavManager.NavigateTo("/register");
+        }
+        else
+        {
+            NavManager.NavigateTo("/userProfile");
+        }
+    }
+}

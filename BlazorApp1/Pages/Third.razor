@@ -1,0 +1,65 @@
+﻿@page "/third"
+
+<PageTitle>Third page</PageTitle>
+
+<MudTimeline>
+    <MudTimelineItem Color="Color.Dark">
+        <MudText>6:00</MudText>
+    </MudTimelineItem>
+    <MudTimelineItem Color="Color.Info">
+        <ItemOpposite>
+            <MudText>7:00</MudText>
+        </ItemOpposite>
+    </MudTimelineItem>
+    <MudTimelineItem>
+        <MudText>8:00</MudText>
+    </MudTimelineItem>
+    <MudTimelineItem>
+        <ItemOpposite>
+            <MudText>11:00</MudText>
+        </ItemOpposite>
+    </MudTimelineItem>
+    <MudTimelineItem Color="Color.Success">
+        <MudText>11:30</MudText>
+    </MudTimelineItem>
+    <MudTimelineItem>
+        <ItemOpposite>
+            <MudText>15:00</MudText>
+        </ItemOpposite>
+    </MudTimelineItem>
+    <MudTimelineItem Color="Color.Info">
+        <MudText>15:45</MudText>
+    </MudTimelineItem>
+</MudTimeline>
+<br />
+<br />
+
+<MudTooltip Text="Dark color" Color="Color.Dark" Placement="Placement.Top">
+    <MudButton>6:00</MudButton>
+</MudTooltip>
+<MudTooltip Text="Info color" Color="Color.Info" Placement="Placement.Bottom" Arrow="true">
+    <MudButton>7:00</MudButton>
+</MudTooltip>
+<MudTooltip Text="Default color" Placement="Placement.Top">
+    <MudButton>8:00</MudButton>
+</MudTooltip>
+<MudTooltip Text="Default color" Placement="Placement.Bottom" Arrow="true">
+    <MudButton>11:00</MudButton>
+</MudTooltip>
+<MudTooltip Text="Success color" Color="Color.Success" Placement="Placement.Top">
+    <MudButton>11:30</MudButton>
+</MudTooltip>
+<MudTooltip Text="Default color" Placement="Placement.Bottom" Arrow="true">
+    <MudButton>15:00</MudButton>
+</MudTooltip>
+<MudTooltip Text="Info color" Color="Color.Info" Placement="Placement.Top">
+    <MudButton>15:45</MudButton>
+</MudTooltip>
+
+<br />
+<br />
+<MudPaper Class="pa-16 ma-2" Elevation="3">
+    <MudIcon Icon="@Icons.Material.Filled.CatchingPokemon"></MudIcon>
+</MudPaper>
+
+

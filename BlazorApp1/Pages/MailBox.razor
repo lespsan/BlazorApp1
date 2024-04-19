@@ -1,0 +1,94 @@
+﻿@page "/mailBox"
+@inherits LayoutComponentBase
+
+@using BlazorApp1.Data
+@using Microsoft.AspNetCore.Components
+@inject Database DBConnect
+
+<h1>Mail Box</h1>
+<MudDropContainer T="DropItem" Items="_items" ItemsSelector="@((item,dropzone) => item.Identifier == dropzone)" ItemDropped="ItemUpdated">
+    <ChildContent>
+        <MudPaper MinHeight="500px" Class="d-flex flex-1">
+            <MudList Clickable="true" Dense="true" @bind-SelectedValue="_selectedFolder">
+                <MudListSubheader>@email</MudListSubheader>
+                <MudDropZone T="DropItem" Identifier="Inbox" OnlyZone="true">
+                    <MudListItem Text="Inbox" Value="@("Inbox")" Icon="@Icons.Material.Filled.Inbox" />
+                </MudDropZone>
+                <MudDropZone T="DropItem" Identifier="Sent" OnlyZone="true">
+                    <MudListItem Text="Sent" Value="@("Sent")" Icon="@Icons.Material.Filled.Send" />
+                </MudDropZone>
+                <MudDropZone T="DropItem" Identifier="Spam" OnlyZone="true">
+                    <MudListItem Text="Spam" Value="@("Spam")" Icon="@Icons.Material.Filled.Drafts" />
+                </MudDropZone>
+                <MudListItem Icon="@Icons.Material.Filled.Label" Text="Categories" InitiallyExpanded="true">
+                    <NestedList>
+                        <MudDropZone T="DropItem" Identifier="Social" OnlyZone="true">
+                            <MudListItem Dense="true" Text="Social" Value="@("Social")" Icon="@Icons.Material.Filled.Group" Class="pl-8" />
+                        </MudDropZone>
+                    </NestedList>
+                </MudListItem>
+                <MudDropZone T="DropItem" Identifier="Delete" OnlyZone="true">
+                    <MudListItem Text="Delete" Value="@("Delete")" Icon="@Icons.Material.Filled.Delete"/>
+                </MudDropZone>
+            </MudList>
+            <MudDivider Vertical="true" FlexItem="true" />
+            <MudList Dense="true" Clickable="true" Class="d-flex flex-column flex-grow-1 py-0">
+                <MudToolBar DisableGutters="true" Dense="true">
+                    <MudCheckBox @bind-Checked="@ToolbarCheckBox" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Refresh" />
+                    <MudIconButton Icon="@Icons.Material.Filled.MoreVert" />
+                    <MudSpacer />
+                    <MudIconButton Icon="@Icons.Material.Filled.ChevronLeft" />
+                    <MudIconButton Icon="@Icons.Material.Filled.ChevronRight" />
+                </MudToolBar>
+                <MudDivider />
+                <MudDropZone T="DropItem" Identifier="@_selectedFolder.ToString()" Class="flex-grow-1" />
+            </MudList>
+        </MudPaper>
+    </ChildContent>
+    <ItemRenderer>
+        <MudListItem Text="@context.Name" Disabled="@context.Disable"/>
+        <MudDivider />
+    </ItemRenderer>
+</MudDropContainer>
+
+
+@code {
+    [Parameter]
+    public String email { get; set; }
+
+    public bool ToolbarCheckBox { get; set; } = false;
+    object _selectedFolder = "Inbox";
+
+
+    private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
+    {
+        dropItem.Item.Identifier = dropItem.DropzoneIdentifier;
+        if(dropItem.Item.Identifier == "Delete")
+        {
+            dropItem.Item.Disable = true;
+        }
+        else
+        {
+            dropItem.Item.Disable = false;
+        }
+
+    }
+
+    private List<DropItem> _items = new()
+    {
+        new DropItem(){ Name = "Calendario trabajo", Identifier = "Inbox", Disable = false },
+        new DropItem(){ Name = "Fecha entrega proyecto", Identifier = "Inbox", Disable = false},
+        new DropItem(){ Name = "Proyecto finalizado​", Identifier = "Sent", Disable = false},
+        new DropItem(){ Name = "Ofertas Corte Ingles", Identifier = "Spam", Disable = false },
+        new DropItem(){ Name = "Ofertas de amazon", Identifier = "Spam", Disable = false },
+        new DropItem(){ Name = "Tienes mensajes en Facebook", Identifier = "Social", Disable = false },
+    };
+
+    public class DropItem
+    {
+        public string Name { get; init; }
+        public string Identifier { get; set; }
+        public bool Disable { get; set; }
+    }
+}

@@ -1,0 +1,262 @@
+﻿@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+
+@using System.ComponentModel.DataAnnotations
+@using BlazorApp1.Components
+@using BlazorApp1.Data
+@using System.Data
+@using static MudBlazor.CategoryTypes
+@inject NavigationManager NavManager
+@inject IDialogService DialogService
+
+@page "/logIn"
+@inject Database DBConnect
+
+<MudMainContent>
+    @if (!_mailBox)
+    {
+        <MailBox email="@model.Email"></MailBox>
+    }
+    else
+    {
+        <h1>Log In</h1>
+        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator />
+            <MudGrid>
+                <MudItem xs="12" sm="7">
+                    <MudCard>
+                        <MudCardContent>
+                            <MudTextField Label="First name" HelperText="Max. 8 characters"
+                                          @bind-Value="model.Username" For="@(() => model.Username)" />
+                            <MudTextField Label="Email" Class="mt-3"
+                                          @bind-Value="model.Email" For="@(() => model.Email)" />
+                            <MudTextField Label="Password" HelperText="Choose a strong password" Class="mt-3"
+                                          @bind-Value="model.Password" For="@(() => model.Password)" InputType="InputType.Password" />
+                            <MudTextField Label="Password" HelperText="Repeat the password" Class="mt-3"
+                                          @bind-Value="model.Password2" For="@(() => model.Password2)" InputType="InputType.Password" />
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="FindUser">Log In</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+                <MudButton OnClick="OpenMail" Disabled=@disableMail>Mail Box</MudButton>
+            </MudGrid>
+            <MudDivider />
+            <MudText>@resultText</MudText>
+           
+           
+        </EditForm>
+        <MudDivider />
+        <MudButton OnClick="OpenRegister" Color="Color.Info">Register</MudButton>
+        <MudButton OnClick="DeleteUser" Color="Color.Error">Delete User</MudButton>
+        <MudButton OnClick="OpenUpdate" Color="Color.Info">Update User</MudButton>
+        @if (_update)
+        {
+            <h1>Update</h1>
+            <EditForm Model="@newModel" OnValidSubmit="OnValidSubmit">
+                <DataAnnotationsValidator />
+                <MudGrid>
+                    <MudItem xs="12" sm="7">
+                        <MudCard>
+                            <MudCardContent>
+                                <MudTextField Label="First name" HelperText="Max. 8 characters"
+                                              @bind-Value="newModel.Username" For="@(() => newModel.Username)" />
+                                <MudTextField Label="Email" Class="mt-3"
+                                              @bind-Value="newModel.Email" For="@(() => newModel.Email)" />
+                                <MudTextField Label="Password" HelperText="Choose a strong password" Class="mt-3"
+                                              @bind-Value="newModel.Password" For="@(() => newModel.Password)" InputType="InputType.Password" />
+                                <MudTextField Label="Password" HelperText="Repeat the password" Class="mt-3"
+                                              @bind-Value="newModel.Password2" For="@(() => newModel.Password2)" InputType="InputType.Password" />
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="Update">Update</MudButton>
+                            </MudCardActions>
+                        </MudCard>
+                    </MudItem>
+                </MudGrid>
+            </EditForm>
+        }
+       
+    }
+</MudMainContent>
+
+@code {
+    RegisterAccountForm model = new RegisterAccountForm();
+    UpdateAccountForm newModel = new UpdateAccountForm();
+    bool success;
+    bool _mailBox = true;
+    bool disableMail = true;
+    bool _update = false;
+    String resultText;
+
+
+
+    public class RegisterAccountForm
+    {
+        [Required]
+        [StringLength(8, ErrorMessage = "Name length can't be more than 8.")]
+        public string Username { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
+        [StringLength(30, ErrorMessage = "Password must be at least 8 characters long.", MinimumLength = 8)]
+        public string Password { get; set; }
+
+        [Required]
+        [Compare(nameof(Password))]
+        public string Password2 { get; set; }
+
+    }
+
+    public class UpdateAccountForm
+    {
+        [Required]
+        [StringLength(8, ErrorMessage = "Name length can't be more than 8.")]
+        public string Username { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
+        [StringLength(30, ErrorMessage = "Password must be at least 8 characters long.", MinimumLength = 8)]
+        public string Password { get; set; }
+
+        [Required]
+        [Compare(nameof(Password))]
+        public string Password2 { get; set; }
+
+    }
+
+
+    private void ResetInfo()
+    {
+        model.Username = "";
+        model.Email = "";
+        model.Password = "";
+        model.Password2 = "";
+        newModel.Username = "";
+        newModel.Email = "";
+        newModel.Password = "";
+        newModel.Password2 = "";
+    }
+
+    private void OpenDialog(string page)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        DialogParameters option = new DialogParameters { ["txt"] = resultText, ["page"] = page };
+        DialogService.Show<Components.Dialog>("", option, options);
+    }
+
+    private void OpenMail()
+    {
+        _mailBox = !_mailBox;
+    }
+
+    private void OpenRegister()
+    {
+        NavManager.NavigateTo("/register");
+    }
+
+    private void OpenUpdate()
+    {
+        _update = !_update;
+    }
+
+    private void OnValidSubmit(EditContext context)
+    {
+        success = true;
+        StateHasChanged();
+    }
+
+    private void FindUser()
+    {
+        Boolean result = DBConnect.FindUser(model.Username, model.Email, model.Password);
+        if (model.Username == "" || model.Password == "" || model.Email == "" || model.Password2 == "")
+        {
+            resultText = "Falta algún dato";
+            OpenDialog("/logIn");
+        }
+        else
+        {
+            if (result)
+            {
+                if (model.Password2 != model.Password)
+                {
+                    resultText = "Las contraseñas no coinciden";
+                    OpenDialog("/logIn");
+                }
+                else
+                {
+                    disableMail = false;
+                    resultText = "Bienvenid@ " + model.Username;
+                    OpenDialog("/");
+                    
+                }
+
+            }
+            else
+            {
+                resultText = "El usuario no se encuentra en la base de datos, regístrese";
+                ResetInfo();
+                OpenDialog("/register");
+            }
+        }
+    }
+
+    private void DeleteUser()
+    {
+        if(model.Username != "" || model.Password != "" || model.Email != "" || model.Password2 == "")
+        {
+            int result = DBConnect.RemoveUser(model.Username, model.Email, model.Password);
+            if (result > 0)
+            {
+                resultText = "Usuario eliminado correctamente";
+                ResetInfo();
+                disableMail = true;
+                OpenDialog("/register");
+            }
+            else
+            {
+                resultText = "No se ha encontrado un usuario con dichos datos";
+                OpenDialog("/register");
+            }
+        }
+        else
+        {
+            resultText = "Faltan datos";
+            OpenDialog("/logIn");
+        }
+    }
+
+    private void Update()
+    {
+        if (newModel.Username != "" || newModel.Password != "" || newModel.Email != "" || model.Password2 == "")
+        {
+            int result = DBConnect.UpdateUser(model.Username, model.Email, model.Password, newModel.Username, newModel.Email, newModel.Password);
+            if (result > 0)
+            {
+                resultText = "Usuario actualizado correctamente";
+                ResetInfo();
+                OpenDialog("/");
+                User.email = model.Email;
+                User.password = model.Password;
+                User.name = model.Username;
+            }
+            else
+            {
+                resultText = "No se ha encontrado un usuario con dichos datos";
+                OpenDialog("/register");
+            }
+        }
+        else
+        {
+            resultText = "Faltan datos";
+            OpenDialog("/logIn");
+        }
+    }
+}

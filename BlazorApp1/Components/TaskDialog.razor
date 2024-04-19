@@ -1,0 +1,54 @@
+﻿@using BlazorApp1.Data
+@inject Database DBConnect
+
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.h5">Añade tu nueva tarea</MudText>
+        <MudTextField @bind-Value="name" Label="Nombre de la tarea" Variant="Variant.Filled" Margin="Margin.Dense"></MudTextField>
+        <MudNumericField HideSpinButtons="true" @bind-Value="duracion" Label="Duracion de la tarea" Variant="Variant.Filled" Min="0" />
+        <MudDatePicker Label="Fecha Inicio" @bind-Date="fechaInicio" DisableToolbar="true" />
+        <MudDatePicker Label="Fecha Fin" @bind-Date="fechaFin" DisableToolbar="true" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public string option { get; set; }
+
+    [Parameter] public int id { get; set; }
+
+    [Parameter] public string name { get; set; }
+
+    [Parameter] public int duracion { get; set; }
+
+    string text { get; set; }
+
+    [Parameter] public DateTime? fechaInicio { get; set; }
+
+    [Parameter] public DateTime? fechaFin { get; set; }
+
+
+    void Submit()
+    {
+        if(option == "Update")
+        {
+            text = "Actualiza tu tarea";
+            DBConnect.UpdateTask(id, name, duracion, fechaInicio.ToString(), fechaFin.ToString());
+        }
+        else
+        {
+            text = "Añade tu nueva tarea";
+            DBConnect.AddTask(name, duracion, fechaInicio.ToString(), fechaFin.ToString());
+        }
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    void Cancel() => MudDialog.Cancel();
+}
+

@@ -1,0 +1,95 @@
+﻿@page "/userProfile"
+@using BlazorApp1.Components
+@using BlazorApp1.Data
+@using System.Data
+@inject Database DBConnect
+@inject IDialogService DialogService
+@inject NavigationManager NavManager
+
+<MudPaper Width="100%" Height="100%" Class="d-flex flex-row flex-grow-1 gap-4 justify-center" Elevation="0">
+    <MudAvatar Style="height:130px; width:130px; font-size:2rem;">
+        <MudImage Src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Blazor.png"></MudImage>
+    </MudAvatar>
+    <MudPaper Elevation="0">
+        <MudText Typo=Typo.h2>@User.name</MudText>
+        <MudText Typo=Typo.h4>@User.email</MudText>
+        <MudButton OnClick="@(() => OpenDialog("Insert"))" Color="Color.Info">Crear tarea</MudButton>
+    </MudPaper>
+    <MudButton OnClick="CerrarSesion" Color="Color.Info">Cerrar Sesión</MudButton>
+    <MudButton OnClick="EliminarCuenta" Color="Color.Error">Eliminar cuenta</MudButton>
+</MudPaper>
+<MudDataGrid T="DataTask" Items="@tasks" Style="justify-center"
+             Bordered="true" Dense="true">
+    <Columns>
+        <PropertyColumn Property="x => x.name" Title="Nombre" IsEditable="false" />
+        <PropertyColumn Property="x => x.duracion" Title="Duracion" />
+        <PropertyColumn Property="x => x.fechaInicio" Title="Fecha Inicio" />
+        <PropertyColumn Property="x => x.fechaFinal" Title="Fecha Final" />
+        <TemplateColumn  CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(() => OpenDialog("Update", context.Item.name, context.Item.duracion, context.Item.fechaInicio, context.Item.fechaFinal))" />
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" OnClick="@(() => DeleteTask(DBConnect.FindTask(context.Item.name, context.Item.duracion, context.Item.fechaInicio, context.Item.fechaFinal)))" />
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+</MudDataGrid>
+
+
+@code {
+    IEnumerable<DataTask> tasks;
+
+    private bool _isCellEditMode;
+
+    private bool _editTriggerRowClick;
+
+
+    protected override async void OnInitialized()
+    {
+        tasks = DBConnect.FindTasks();
+        await Task.CompletedTask;
+        StateHasChanged();
+    }
+
+    private async void OpenDialog(string option, string name = "", int duracion = 0, string fechaInicio = "", string fechaFin = "")
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        int id = DBConnect.FindTask(name, duracion, fechaInicio, fechaFin);
+        DialogParameters param = new DialogParameters{ };
+        if(option == "Update")
+        {
+            param = new DialogParameters { ["option"] = option, ["id"] = id, ["name"] = name, ["duracion"] = duracion, ["fechaInicio"] = DateTime.Parse(fechaInicio), ["fechaFin"] = DateTime.Parse(fechaFin) };
+        }
+        else
+        {
+            param = new DialogParameters { ["option"] = option, ["id"] = id, ["name"] = name, ["duracion"] = duracion, ["fechaInicio"] = DateTime.Now, ["fechaFin"] = DateTime.Now };
+        }
+        var hola = DialogService.Show<TaskDialog>("", param, options);
+        var result = await hola.Result;
+        if (!result.Cancelled)
+        {
+            tasks = DBConnect.FindTasks();
+            StateHasChanged();
+        }
+    }
+
+    void CerrarSesion()
+    {
+        User.name = "";
+        User.email = "";
+        User.password = "";
+        NavManager.NavigateTo("/");
+    }
+
+    void DeleteTask(int id)
+    {
+        DBConnect.RemoveTask(id);
+        tasks = DBConnect.FindTasks();
+        StateHasChanged();
+    }
+
+    void EliminarCuenta()
+    {
+        DBConnect.RemoveUser(User.name, User.email, User.password);
+        CerrarSesion();
+    }
+}

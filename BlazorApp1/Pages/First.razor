@@ -1,0 +1,126 @@
+﻿@page "/first"
+@using System.Net.Mail
+
+<PageTitle>First page</PageTitle>
+
+<MudCarousel Class="mud-width-full" @ref="_carousel" ItemsSource="@_source" @bind-SelectedIndex="selectedIndex" Style="height:200px;" ShowArrows="@true" ShowBullets="@true" EnableSwipeGesture="true" AutoCycle="true">
+	<ItemTemplate>
+		<div class="d-flex flex-column flex-column justify-center" style="height:100%">
+			<MudIcon Class="mx-auto" Icon="@Icons.Material.Filled.Castle" Size="@Size.Large" />
+			<MudText Align="@Align.Center" Class="mx-auto">@context</MudText>
+		</div>
+	</ItemTemplate>
+</MudCarousel>
+
+<MudText>¿Cuál prefieres?</MudText>
+<br />
+<MudSelect @bind-Value="selectedIndex" Label="@($"Favorito: {selectedIndex}")">
+	@{
+		int index = 0;
+		foreach (var item in _source)
+		{
+			<MudSelectItem Value="@index">@item</MudSelectItem>
+
+			index++;
+		}
+	}
+</MudSelect>
+<br />
+<br />
+
+<div class="d-flex flex-column align-center">
+	<MudRating @bind-SelectedValue="selectedVal" HoveredValueChanged="HandleHoveredValueChanged" />
+	<MudText Typo="Typo.subtitle2" Class="deep-purple-text mt-2">@LabelText</MudText>
+</div>
+@code {
+	private int selectedVal = 0;
+	private int? activeVal;
+
+	private void HandleHoveredValueChanged(int? val) => activeVal = val;
+
+	private string LabelText => (activeVal ?? selectedVal) switch
+	{
+		1 => "Very bad",
+		2 => "Bad",
+		3 => "Sufficient",
+		4 => "Good",
+		5 => "Awesome!",
+		_ => "Rate Kotlin!"
+	};
+}
+
+<br />
+<br />
+<MudText>@selected</MudText>
+
+<br />
+<MudMenu Label="Menu with Icons">
+	<MudMenuItem IconSize="Size.Small" IconColor="Color.Dark" Icon="@Icons.Material.Filled.Castle" OnClick="@(async () => await Click(@icons[0]))">Castle</MudMenuItem>
+	<MudMenuItem IconSize="Size.Small" IconColor="Color.Dark" Icon="@Icons.Material.Filled.Image" OnClick="@(async () => await Click(@icons[1]))">Image</MudMenuItem>
+	<MudMenuItem IconSize="Size.Small" IconColor="Color.Dark" Icon="@Icons.Material.Filled.Doorbell" OnClick="@(async () => await Click(@icons[2]))">Doorbell</MudMenuItem>
+</MudMenu>
+<br />
+<br />
+
+<MudButton OnClick="SendMail">Enviar</MudButton>
+<MudText>@message</MudText>
+
+<br />
+<br />
+<MudExpansionPanels>
+	<MudExpansionPanel Text="@icons[0]" Dense="true">
+		<MudIcon Icon="@Icons.Material.Filled.Castle"></MudIcon>
+	</MudExpansionPanel>
+	<MudExpansionPanel Text="@icons[1]" Dense="true">
+		<MudIcon Icon="@Icons.Material.Filled.Image"></MudIcon>
+	</MudExpansionPanel>
+	<MudExpansionPanel Text="@icons[2]" Dense="true">
+		<MudIcon Icon="@Icons.Material.Filled.Doorbell"></MudIcon>
+	</MudExpansionPanel>
+</MudExpansionPanels>
+
+
+
+@code {
+	//Form and Inputs
+	private MudCarousel<string> _carousel;
+	private IList<string> _source = new List<string>() { "C#", "Java", "Kotlin", "Python" };
+	private int selectedIndex = 2;
+	private String[] icons = { "Castle", "Image", "Doorbell" };
+	private String selected = "Castle";
+
+	private string message { get; set;  }
+
+	private async Task Click(String icon)
+	{
+		selected = icon;
+	}
+
+	private void SendMail()
+	{
+		try
+		{
+			using(MailMessage mail = new MailMessage())
+			{
+				mail.From = new MailAddress("");
+				mail.To.Add("");
+				mail.Subject = "Prueba";
+				mail.Body = "<h1>Prueba</h1>";
+				mail.IsBodyHtml = true;
+
+				using (SmtpClient smtp = new SmtpClient("smtp.serviciodecorreo.es", 465))
+				{
+					smtp.Credentials = new System.Net.NetworkCredential("", "");
+					smtp.EnableSsl = true;
+					smtp.Send(mail);
+					message = "Enviado";
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			message = e.Message;
+			Console.WriteLine(message);
+		}
+	}
+}
