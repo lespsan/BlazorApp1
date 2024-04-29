@@ -1,0 +1,84 @@
+﻿.timeline {
+    /* set a variable for the color */
+    --timeline-color: #9bc;
+    position: relative;
+    list-style: none;
+    display: inline-flex;
+    flex-wrap: nowrap;
+    margin: 0;
+    padding: 0;
+    height: 240px;
+}
+    /* set here the height of the timeline */
+
+
+    /* middle line */
+    .timeline:before {
+        content: "";
+        position: absolute;
+        top: calc(50% - 1px);
+        width: 100%;
+        height: 2px;
+        background: var(--timeline-color);
+    }
+
+
+    .timeline li {
+        margin: 0 20px;
+        min-width: 200px;
+        align-self: flex-start;
+    }
+
+
+        /*  event in even position are bottom-aligned */
+        .timeline li:nth-child(2n) {
+            align-self: flex-end;
+        }
+
+
+    .timeline div {
+        position: relative;
+        padding: 10px;
+        border: 1px var(--timeline-color) solid;
+    }
+
+
+    /* style for the dot over the timeline */
+    .timeline li:before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        margin-left: 100px;
+        transform: translate(-50%, -50%);
+        border: 1px #9bc solid;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--timeline-color);
+    }
+
+
+    /* style for the event arrow */
+    .timeline div:before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 100%;
+        width: 20px;
+        height: 20px;
+        transform: translate(-50%, -1px) rotateZ(45deg);
+        background: #fff;
+    }
+
+    		text {
+			font: 600 13px helvetica;
+		}
+		.title {
+			font: 600 30px helvetica;
+		}
+		.desc {
+			font: 400 20px helvetica;
+		}
+		.branch {
+			font: 600 17px helvetica;
+		}
